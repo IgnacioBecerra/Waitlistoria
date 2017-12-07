@@ -14,7 +14,7 @@ tabButton.click()
 # Types search terms for a course
 element = br.find_element_by_id('courses')
 element.clear()
-element.send_keys("CSE 100")
+element.send_keys("MATH 20C")
 
 # Submits form
 element = br.find_element_by_xpath('//*[@id="socFacSubmit"]')
