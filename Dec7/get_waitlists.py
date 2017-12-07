@@ -7,7 +7,7 @@ def get_waitlists(code, course):
 	soup = BeautifulSoup(code, "html.parser")
 
 	# Open JSON file to update information
-	course_json = "./data/" + course + ".json"
+	course_json = course + ".json"
 	classFile = open(course_json, 'w')
 	class_data = []
 

@@ -1,0 +1,24 @@
+TODO:
+* Separate the sections in the JSON file and label them
+* Obtain all the class codes
+
+
+Edge cases:
+
+* Class opens new seats
+* Results have more than one page
+* Sections are cancelled
+* Class doesn't exist/not available
+
+
+Things to consider:
+
+* Should I search for all courses and store them in a big json file? Or individually?
+
+* Even with JSON files, where am I going to store data from every day?
+
+*  Will this data be stored in separate JSON file that will continuously update? Mongoose? MongoDB? 
+	-> Maybe have General Class info JSON file that stays the same (only runs once/few times before a quarter) and have a separate one with all the updating seats with timestamps.
+
+
+
