@@ -6,14 +6,11 @@ def get_waitlists(code, course):
 	# Parsing HTML from requested class
 	soup = BeautifulSoup(code, "html.parser")
 
-	# Open JSON file to update information
-	course_json = "./data/" + course + ".json"
-	classFile = open(course_json, 'w')
+	# Create list to store information
 	class_data = []
 
 	# Obtain class data 
 	for td in soup.findAll('td',{'class':'brdr'}):
-
 		text = td.text
 
 		# Taking care of special characters
@@ -30,10 +27,18 @@ def get_waitlists(code, course):
 	# Get rid of empty strings within
 	class_data = list(filter(None, class_data))
 
-	# Fill JSON file with data
-	json.dump(class_data, classFile)
-	classFile.close()
 
+	# Fill JSON file with data if class exists 
+	if class_data:
+
+
+		
+
+		
+		course_json = course + ".json"
+		classFile = open(course_json, 'w')
+		json.dump(class_data, classFile)
+		classFile.close()
 
 ''' Might actually not need this...
  	# Remove line break that contains the waitlist

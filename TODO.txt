@@ -1,6 +1,6 @@
 TODO:
 * Separate the sections in the JSON file and label them
-* Obtain all the class codes
+
 
 
 Edge cases:
@@ -20,5 +20,6 @@ Things to consider:
 *  Will this data be stored in separate JSON file that will continuously update? Mongoose? MongoDB? 
 	-> Maybe have General Class info JSON file that stays the same (only runs once/few times before a quarter) and have a separate one with all the updating seats with timestamps.
 
+Done:
 
-
+* (DONE) Obtain all the class codes (DONE)
