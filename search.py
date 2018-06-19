@@ -1,7 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options 
 from get_waitlists import get_waitlists
-
+import time
 
 course = "CSE100"
 
@@ -15,7 +15,7 @@ tabButton = br.find_element_by_xpath('//*[@id="tabs"]/ul/li[4]/a')
 tabButton.click()
 
 # Types search terms for a course
-element = br.find_element_by_id('courses')
+element = br.find_element_by_xpath('//*[@id="courses"]')
 element.clear()
 element.send_keys(course)
 
@@ -24,4 +24,5 @@ element = br.find_element_by_xpath('//*[@id="socFacSubmit"]')
 element.click()
 
 get_waitlists(br.page_source, course)
+br.quit()
 
