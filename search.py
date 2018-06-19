@@ -24,5 +24,5 @@ element = br.find_element_by_xpath('//*[@id="socFacSubmit"]')
 element.click()
 
 get_waitlists(br.page_source, course)
-br.quit()
 
+br.quit()

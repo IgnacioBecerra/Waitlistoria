@@ -24,4 +24,3 @@ def search(course):
 	element.click()
 
 	get_waitlists(br.page_source, course)
-

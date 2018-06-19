@@ -6,16 +6,13 @@ def get_waitlists(code, course):
 	# Parsing HTML from requested class
 	soup = BeautifulSoup(code, "html.parser")
 
-	# Open JSON file to update information
-	course_json = "./data/" + course + ".json"
-	classFile = open(course_json, 'w')
+	# Create list to store information
 	class_data = []
 
 	class_data.append(course)
 
 	# Obtain class data 
 	for td in soup.findAll('td',{'class':'brdr'}):
-
 		text = td.text
 
 		# Taking care of special characters
@@ -31,6 +28,7 @@ def get_waitlists(code, course):
 		
 	# Get rid of empty strings within
 	class_data = list(filter(None, class_data))
+
 
 	classFile.write('[{"name": ' + '"' + course + '", "sections": [{')
 	sectionBool = False
