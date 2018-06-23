@@ -7,6 +7,8 @@ def get_waitlists(code, course):
 	soup = BeautifulSoup(code, "html.parser")
 
 	# Create list to store information
+	course_json = "./data/" + course + ".json"
+	classFile = open(course_json, 'w')
 	class_data = []
 
 	class_data.append(course)
@@ -42,12 +44,72 @@ def get_waitlists(code, course):
 	profBool = False
 	cancelBool = False
 	lectureBool = True
+	sectionDone = False
+	discBool = False
+	finalBool = False
+	dateBool = False
 
 	for i, w in enumerate(class_data):
 		if i == 0:
 			continue
+		
 		if w == "FI":
-			break
+			sectionBool = False
+			roomBool = False
+			daysBool = False
+			timeBool = False
+			buildBool = False
+			roomBool = False
+			waitBool = False
+			idBool = False
+			profBool = False
+			cancelBool = False
+			lectureBool = False
+			sectionDone = False
+			discBool = False
+			classFile.write(', {"type": "Final"')
+			finalBool = True
+			continue
+
+		# Final parsing
+		if finalBool == True:
+
+			if dateBool == False:
+				class_data[i] = ', "Date": ' + '"' + w + '"'
+				dateBool = True
+
+			elif daysBool == False:
+				class_data[i] = ', "Day": ' + '"' + w + '"'
+				daysBool = True
+
+			elif timeBool == False:
+				class_data[i] = ', "Time": ' + '"' + w + '"'
+				timeBool = True
+			
+			elif buildBool == False:
+				class_data[i] = ', "Building": ' + '"' + w + '"'
+				buildBool = True
+		
+			elif roomBool == False:
+				classFile.write(', "Room": ' + '"' + w + '"}')
+				roomBool = False
+				sectionBool = False
+				roomBool = False
+				daysBool = False
+				timeBool = False
+				buildBool = False
+				waitBool = False
+				idBool = False
+				profBool = False
+				cancelBool = False
+				lectureBool = False
+				sectionDone = False
+				discBool = False
+				finalBool = False
+				dateBool = False
+				sectionDone = True
+				continue
+
 
 		# Reset booleans if cancelled
 		if w == "Cancelled":
@@ -59,14 +121,15 @@ def get_waitlists(code, course):
 			roomBool = False
 			waitBool = False
 			idBool = False
-			classFile.write("}")
 			cancelBool = True
 			lectureBool = False
+			classFile.write(', "Cancelled": "True"')
 			continue
 
 		if w == "SE":
 			if idBool == False:
 				class_data[i] = '"type": "Seminar"'
+				print "memes"
 			else:
 				class_data[i] = ', "type": "Seminar"'
 			sectionBool = False
@@ -81,8 +144,12 @@ def get_waitlists(code, course):
 
 		# Set lecture boolean to skip some categories
 		elif w == "LE":
-			if idBool == False:
+			if idBool == False and sectionDone == False:
 				class_data[i] = '"type": "Lecture"'
+			
+			elif sectionDone == True:
+				class_data[i] = ', { "type": "Lecture"'
+				sectionDone = False
 			else:
 				class_data[i] = ', "type": "Lecture"'
 			sectionBool = False
@@ -95,11 +162,17 @@ def get_waitlists(code, course):
 			lectureBool = True
 			buildBool = False
 
+
+		##### MAYBE HAVE A DISCUSSION CHECK FOR NO INSTRUCTOR
 		elif w == "DI":
-			if idBool == False:
-				class_data[i] = '"type": "Discussion"'
-			else:
+
+			# Following an ID
+			if idBool == True:
 				class_data[i] = ', "type": "Discussion"'
+
+			# Starting new section
+			elif sectionDone == True or discBool == True:
+				class_data[i] = '}, {"type": "Discussion"'
 			lectureBool = False
 			sectionBool = False
 			roomBool = False
@@ -109,39 +182,89 @@ def get_waitlists(code, course):
 			waitBool = False
 			profBool = False
 			buildBool = False
+			discBool = True
 
-		# Section ID code requirements
-		elif w.isdigit() and len(w) == 6 and idBool == False:
-			if cancelBool == True or lectureBool == True:
-				classFile.write(", {")
-				cancelBool = False
-			class_data[i] = '"sectionID": ' + '"' + w + '"'
-			idBool = True
-		
-		elif len(w) == 3 and sectionBool == False:
-			class_data[i] = ', "section": ' + '"' + w + '"'
-			sectionBool = True
+		elif w == "LA":
+			if idBool == False:
+				class_data[i] = '"type": "Lab"'
+			else:
+				class_data[i] = ', "type": "Lab"'
+			lectureBool = False
+			sectionBool = False
+			roomBool = False
+			daysBool = False
+			timeBool = False
+			waitBool = False
+			profBool = False
+			buildBool = False
 
-		elif daysBool == False:
-			class_data[i] = ', "Days": ' + '"' + w + '"'
-			daysBool = True
-		
-		elif timeBool == False:
-			class_data[i] = ', "Time": ' + '"' + w + '"'
-			timeBool = True
+		elif finalBool == False:
+			# Section ID code requirements
+			if w.isdigit() and len(w) == 6 and idBool == False:
 
-		elif buildBool == False:
-			class_data[i] = ', "Building": ' + '"' + w + '"'
-			buildBool = True
-		
-		elif roomBool == False:
-			class_data[i] = ', "Room": ' + '"' + w + '"'
-			roomBool = True
+				# After a discussion
+				if roomBool == True:
+					classFile.write("}, {")
+				
+				# After a lecture or cancellation
+				elif cancelBool == True or lectureBool == True:
+					classFile.write(", {")
+					cancelBool = False
 
-		# If reading a lecture, reset for next JSON category
-		elif profBool == False:
-			classFile.write(', "Instructor": ' + '"' + w + '"')
-			if lectureBool == True:
+				class_data[i] = '"sectionID": ' + '"' + w + '"'
+				idBool = True
+			
+			elif len(w) == 3 and sectionBool == False:
+				class_data[i] = ', "Section": ' + '"' + w + '"'
+				sectionBool = True
+
+			elif daysBool == False:
+				class_data[i] = ', "Days": ' + '"' + w + '"'
+				daysBool = True
+			
+			elif timeBool == False:
+				class_data[i] = ', "Time": ' + '"' + w + '"'
+				timeBool = True
+
+			elif buildBool == False:
+				class_data[i] = ', "Building": ' + '"' + w + '"'
+				buildBool = True
+			
+			elif roomBool == False:
+				class_data[i] = ', "Room": ' + '"' + w + '"'
+				roomBool = True
+
+			# If reading a lecture, reset for next JSON category
+			elif profBool == False:
+				classFile.write(', "Instructor": ' + '"' + w + '"')
+				if lectureBool == True:
+					idBool = False
+					sectionBool = False
+					roomBool = True
+					daysBool = False
+					timeBool = False
+					waitBool = False
+					profBool = False
+					buildBool = False
+					sectionDone = True
+				
+				else:
+					profBool = True
+				continue
+			
+			elif waitBool == False:
+
+				# Extract actual numbers if class is full
+				if "FULL" in w:
+					count = w[w.find("(")+1:w.find(")")]
+					class_data[i] = ', "Waitlist": ' + '"' + count + '"'
+				else:
+					class_data[i] = ', "Available Seats": ' + '"' + w +'"'
+				waitBool = True
+			else:
+				class_data[i] = ', "Seat Limit": ' + '"' + w + '"}'
+				cancelBool = True
+				idBool = False
 				sectionBool = False
 				roomBool = False
 				daysBool = False
@@ -150,25 +273,7 @@ def get_waitlists(code, course):
 				waitBool = False
 				profBool = False
 				buildBool = False
-				classFile.write("}")
-			
-			else:
-				profBool = True
-			continue
-		
-		elif waitBool == False:
-
-			# Extract actual numbers if class is full
-			if "FULL" in w:
-				count = w[w.find("(")+1:w.find(")")]
-				class_data[i] = ', "Waitlist": ' + '"' + count + '"'
-			else:
-				class_data[i] = ', "Available Seats": ' + '"' + w +'"'
-			waitBool = True
-		else:
-			class_data[i] = ', "Seat Limit": ' + '"' + w + '"}'
-			cancelBool = True
-			idBool = False
+				sectionDone = True
 
 		classFile.write(class_data[i])
 
